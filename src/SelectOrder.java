@@ -5,6 +5,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 
 public class SelectOrder {
     static class arguments {
@@ -24,6 +26,9 @@ public class SelectOrder {
 
     public static void main(String[] args) throws IOException {
         ArrayList<ArrayList<String>> tuples = new ArrayList();
+        ArrayList<ArrayList<String>> passedTuples = new ArrayList();
+
+        boolean dec, inc = false;
 
         if (args.length < 1) {
             error();
@@ -35,13 +40,13 @@ public class SelectOrder {
         if (!file.exists()) {
             error();
         }
-        BufferedReader reader = new BufferedReader(new FileReader(file));
+        BufferedReader reader = new BufferedReader(new FileReader(file)); 
 
-        String topLine = reader.readLine();
+        String topLine = reader.readLine(); //Reads file and seperates by all sapces
         String columns[] = topLine.split("\\s+");
         ArrayList<String> column =  new ArrayList<String>(Arrays.asList(columns));
 
-        String currentLine;
+        String currentLine; //Does same for tuples
         while(reader.ready()) {
             currentLine = reader.readLine();
             String[] splitLine = currentLine.split("\\s+");
@@ -53,10 +58,7 @@ public class SelectOrder {
         String where = args[1]; //Checks if second argument is where
         if (!where.equals("WHERE")) error();
 
-        
-        ArrayList<arguments> col_argument_value = new ArrayList<arguments>();
-        
-
+        ArrayList<arguments> col_argument_value = new ArrayList<arguments>(); //Gets all argument values and splits it
         int n = 2;
         
         while (!args[n].equals("ORDER_BY")) {
@@ -73,12 +75,40 @@ public class SelectOrder {
         } 
 
         
-        String sort_column = args[n+1];
-        String sort_dirtion = args[n+2];
+        String sort_column = args[n+1]; //Get which columnn to sort by
+
+        String sort_direction = args[n+2]; //Get which direction to sort by
+        if (sort_direction.equals("DESC")) { dec = true; } else if (sort_direction.equals("ASC")) {
+            inc = true;
+        } else { error(); }
         
+        //Search through each argument and filter the tuples
+        for (arguments a : col_argument_value) {
+            //Get arguments from input
+            String columnName = a.name;
+            String arg = a.arg;
+            int num = Integer.valueOf(a.num);
+
+            //Translate to current catagories  
+            int columnNum = column.indexOf(columnName);
+
+            for (ArrayList<String> t : tuples) { //Checks all tuples for chose column and checks if it passes requirements
+                String compareValueString = t.get(columnNum); 
+                int compareValueInt = Integer.valueOf(compareValueString);
+                if (arg.equals("eq") && compareValueInt == num) passedTuples.add(t);
+                if (arg.equals("lt") && compareValueInt < num) passedTuples.add(t);
+                if (arg.equals("gt") && compareValueInt > num) passedTuples.add(t);
+                if (arg.equals("le") && compareValueInt <= num) passedTuples.add(t);
+                if (arg.equals("le") && compareValueInt >= num) passedTuples.add(t);
+            }
+                tuples.clear();
+                tuples.addAll(passedTuples);
+                passedTuples.clear();
+        }
+
         System.out.println(column);
         System.out.println(tuples);
-        System.out.println("Hello World!");
+        System.out.println(sort_column);
 
         for (arguments a : col_argument_value) {
             System.out.println(a);
