@@ -10,7 +10,11 @@ public class SelectOrder {
     static class arguments {
         public String name;
         public String arg;
-        public int num;
+        public String num;
+
+        public String toString() {
+            return name + ", " + arg + ", " + num;
+        }
     }
 
     public static void error() {
@@ -56,12 +60,13 @@ public class SelectOrder {
         int n = 2;
         
         while (!args[n].equals("ORDER_BY")) {
-            String[] splitArguments = args[n].split(".");
+            String arg = args[n];
+            String[] splitArguments = arg.split("\\.");
             arguments tempArguments = new arguments();
+
             tempArguments.name = splitArguments[0];
             tempArguments.arg = splitArguments[1];
-            tempArguments.num = Integer.parseInt(splitArguments[2]);
-
+            tempArguments.num = splitArguments[2];
             col_argument_value.add(tempArguments);
             
             n++;
@@ -71,10 +76,13 @@ public class SelectOrder {
         String sort_column = args[n+1];
         String sort_dirtion = args[n+2];
         
-
         System.out.println(column);
         System.out.println(tuples);
         System.out.println("Hello World!");
+
+        for (arguments a : col_argument_value) {
+            System.out.println(a);
+        }
         reader.close();
     }
 }
